@@ -1,0 +1,6 @@
+{
+  "name": "Bookoo Direct",
+  "render_readme": true,
+  "domains": ["bluetooth", "sensor", "button"],
+  "homeassistant": "2025.1.0"
+}

@@ -1,0 +1,25 @@
+"""Constants for Bookoo Direct."""
+
+from __future__ import annotations
+
+DOMAIN = "bookoo_direct"
+
+CONF_DEVICE_TYPE = "device_type"
+
+DEVICE_TYPE_SCALE = "scale"
+DEVICE_TYPE_EM = "espresso_monitor"
+
+PLATFORMS = ["sensor", "button"]
+
+BOOKOO_SCALE_SERVICE_UUID = "00000ffe-0000-1000-8000-00805f9b34fb"
+BOOKOO_SCALE_WEIGHT_UUID = "0000ff11-0000-1000-8000-00805f9b34fb"
+BOOKOO_SCALE_COMMAND_UUID = "0000ff12-0000-1000-8000-00805f9b34fb"
+
+BOOKOO_EM_SERVICE_UUID = "00000fff-0000-1000-8000-00805f9b34fb"
+BOOKOO_EM_DATA_UUID = "0000ff02-0000-1000-8000-00805f9b34fb"
+
+SCALE_CMD_TARE = bytes([0x03, 0x0A, 0x01, 0x00, 0x00, 0x08])
+SCALE_CMD_START_TIMER = bytes([0x03, 0x0A, 0x04, 0x00, 0x00, 0x0A])
+SCALE_CMD_STOP_TIMER = bytes([0x03, 0x0A, 0x05, 0x00, 0x00, 0x0D])
+SCALE_CMD_RESET_TIMER = bytes([0x03, 0x0A, 0x06, 0x00, 0x00, 0x0C])
+SCALE_CMD_TARE_AND_START = bytes([0x03, 0x0A, 0x07, 0x00, 0x00, 0x00])

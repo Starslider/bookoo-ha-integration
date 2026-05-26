@@ -1,0 +1,7 @@
+.pio/
+.vscode/
+include/config.h
+__pycache__/
+*.pyc
+.venv/
+*.sqlite3

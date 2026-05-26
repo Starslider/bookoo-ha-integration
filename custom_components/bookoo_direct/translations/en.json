@@ -1,0 +1,58 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Bookoo device",
+        "description": "Select a discovered Bookoo Bluetooth device.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "bluetooth_confirm": {
+        "title": "Add {name}",
+        "description": "Set up this Bookoo Bluetooth device."
+      }
+    },
+    "abort": {
+      "already_configured": "This Bookoo device is already configured.",
+      "no_devices_found": "No supported Bookoo Bluetooth devices were found.",
+      "unsupported_device": "This Bookoo Bluetooth device is not supported."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "weight": {
+        "name": "Weight"
+      },
+      "timer": {
+        "name": "Timer"
+      },
+      "flow": {
+        "name": "Flow"
+      },
+      "battery": {
+        "name": "Battery"
+      },
+      "pressure": {
+        "name": "Pressure"
+      }
+    },
+    "button": {
+      "tare": {
+        "name": "Tare"
+      },
+      "start_timer": {
+        "name": "Start timer"
+      },
+      "stop_timer": {
+        "name": "Stop timer"
+      },
+      "reset_timer": {
+        "name": "Reset timer"
+      },
+      "tare_and_start": {
+        "name": "Tare and start"
+      }
+    }
+  }
+}
