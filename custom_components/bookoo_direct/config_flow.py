@@ -46,6 +46,14 @@ def _device_type_from_service_info(
     return None
 
 
+def _is_bookoo_candidate(service_info: BluetoothServiceInfoBleak) -> bool:
+    """Return whether a discovery result looks like a Bookoo device."""
+    if _device_type_from_service_info(service_info) is not None:
+        return True
+    name = (service_info.name or "").lower()
+    return "bookoo" in name
+
+
 def _device_label(service_info: BluetoothServiceInfoBleak, device_type: str) -> str:
     label = "Smart Scale Mini" if device_type == DEVICE_TYPE_SCALE else "Espresso Monitor"
     name = service_info.name or "Bookoo"
@@ -67,34 +75,62 @@ class BookooDirectConfigFlow(ConfigFlow, domain=DOMAIN):
         """Handle manual setup."""
         if user_input is not None:
             address = user_input[CONF_ADDRESS]
-            service_info = self._discovered[address]
-            device_type = _device_type_from_service_info(service_info)
+            service_info = self._discovered.get(address)
+            device_type = (
+                _device_type_from_service_info(service_info)
+                if service_info is not None
+                else None
+            )
+            device_type = device_type or user_input.get(CONF_DEVICE_TYPE)
             if device_type is None:
                 return self.async_abort(reason="unsupported_device")
 
             await self.async_set_unique_id(format_mac(address))
             self._abort_if_unique_id_configured()
+            name = service_info.name if service_info is not None else "Bookoo"
             return self.async_create_entry(
-                title=_device_label(service_info, device_type).rsplit(" (", 1)[0],
+                title=(
+                    _device_label(service_info, device_type).rsplit(" (", 1)[0]
+                    if service_info is not None
+                    else f"Bookoo {'Espresso Monitor' if device_type == DEVICE_TYPE_EM else 'Smart Scale Mini'}"
+                ),
                 data={
                     CONF_ADDRESS: address,
-                    CONF_NAME: service_info.name or "Bookoo",
+                    CONF_NAME: name or "Bookoo",
                     CONF_DEVICE_TYPE: device_type,
                 },
             )
 
         for service_info in async_discovered_service_info(self.hass):
-            device_type = _device_type_from_service_info(service_info)
-            if device_type is not None:
+            if _is_bookoo_candidate(service_info):
                 self._discovered[service_info.address] = service_info
 
+        device_type_selector = SelectSelector(
+            SelectSelectorConfig(
+                options=[
+                    SelectOptionDict(value=DEVICE_TYPE_EM, label="Espresso Monitor"),
+                    SelectOptionDict(value=DEVICE_TYPE_SCALE, label="Smart Scale Mini"),
+                ],
+                mode=SelectSelectorMode.DROPDOWN,
+            )
+        )
+
         if not self._discovered:
-            return self.async_abort(reason="no_devices_found")
+            return self.async_show_form(
+                step_id="user",
+                data_schema=vol.Schema(
+                    {
+                        vol.Required(CONF_ADDRESS): str,
+                        vol.Required(CONF_DEVICE_TYPE, default=DEVICE_TYPE_EM): device_type_selector,
+                    }
+                ),
+                description_placeholders={"manual": "true"},
+            )
 
         options = [
             SelectOptionDict(
                 value=address,
-                label=_device_label(service_info, _device_type_from_service_info(service_info) or DEVICE_TYPE_SCALE),
+                label=_device_label(service_info, _device_type_from_service_info(service_info) or DEVICE_TYPE_EM),
             )
             for address, service_info in self._discovered.items()
         ]
@@ -108,7 +144,8 @@ class BookooDirectConfigFlow(ConfigFlow, domain=DOMAIN):
                             options=options,
                             mode=SelectSelectorMode.DROPDOWN,
                         )
-                    )
+                    ),
+                    vol.Optional(CONF_DEVICE_TYPE, default=DEVICE_TYPE_EM): device_type_selector,
                 }
             ),
         )
@@ -119,8 +156,9 @@ class BookooDirectConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         """Handle Bluetooth discovery."""
         device_type = _device_type_from_service_info(discovery_info)
-        if device_type is None:
+        if device_type is None and not _is_bookoo_candidate(discovery_info):
             return self.async_abort(reason="unsupported_device")
+        device_type = device_type or DEVICE_TYPE_EM
 
         await self.async_set_unique_id(format_mac(discovery_info.address))
         self._abort_if_unique_id_configured()
@@ -140,8 +178,7 @@ class BookooDirectConfigFlow(ConfigFlow, domain=DOMAIN):
         address = next(iter(self._discovered))
         service_info = self._discovered[address]
         device_type = _device_type_from_service_info(service_info)
-        if device_type is None:
-            return self.async_abort(reason="unsupported_device")
+        device_type = device_type or DEVICE_TYPE_EM
 
         if user_input is not None:
             return self.async_create_entry(
