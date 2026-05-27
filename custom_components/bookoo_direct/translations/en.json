@@ -5,7 +5,7 @@
         "title": "Add Bookoo device",
         "description": "Select a discovered Bookoo Bluetooth device.",
         "data": {
-          "address": "Device or Bluetooth address",
+          "address": "Bluetooth address",
           "device_type": "Device type"
         }
       },

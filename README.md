@@ -118,6 +118,41 @@ Then:
 4. Search for `Bookoo Direct`.
 5. Add the scale and EM when discovered.
 
+### Bluetooth Discovery And Manual Address
+
+Home Assistant should discover Bookoo devices automatically through its Bluetooth integration. If setup does not show the EM or scale, add it manually with the Bluetooth address.
+
+In this project, the value you need for manual setup is the BLE Bluetooth address/MAC, for example:
+
+```text
+AA:BB:CC:DD:EE:FF
+```
+
+Ways to find it:
+
+- Home Assistant Bluetooth page/logs
+- nRF Connect mobile app
+- LightBlue mobile app
+- `bluetoothctl scan on` on Linux
+- the helper script in this repo
+
+Run the helper scanner on a machine with Bluetooth:
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+pip install bleak
+python scripts/scan_bookoo_ble.py --seconds 20
+```
+
+Print all nearby BLE devices:
+
+```sh
+python scripts/scan_bookoo_ble.py --seconds 20 --all
+```
+
+Use the printed `Address` value in the Bookoo Direct manual setup form and select the correct device type.
+
 ### HACS Install
 
 Once this repo is pushed to GitHub, the Home Assistant integration can be installed as a HACS custom repository.
